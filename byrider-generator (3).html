@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huff's FU Machine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #d62b2b; --red-dark: #a81f1f; --bg: #0f0f0f;
+      --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e;
+      --text: #f0f0f0; --muted: #888; --green: #2ecc71;
+    }
+    body {
+      font-family: Impact, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center; padding: 2rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(80,80,80,0.15), 4px 8px 24px rgba(60,60,60,0.18);
+    }
+    .logo {
+      font-family: Impact, Arial, sans-serif; font-size: 2.6rem;
+      letter-spacing: 3px; color: var(--red); margin-bottom: 0.15rem;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 3px 4px 8px rgba(0,0,0,0.7);
+    }
+    .subtitle { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 1.6rem; }
+    .field { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.4rem; }
+    input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem; color: var(--text);
+      font-family: Arial, sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s;
+    }
+    input:focus { border-color: var(--red); }
+    input::placeholder { color: #444; }
+    .btn {
+      width: 100%; margin-top: 0.4rem; padding: 0.65rem;
+      background: var(--red); color: #fff;
+      font-family: Impact, Arial, sans-serif; font-size: 1.55rem;
+      font-weight: 400; border: 2px solid #000; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 2px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.55), 0 1px 4px rgba(100,100,100,0.25);
+    }
+    .btn:hover { background: var(--red-dark); }
+    .btn:active { transform: scale(0.98); }
+    .output-box { margin-top: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.2rem 1rem; display: none; }
+    .output-box.visible { display: block; }
+    .output-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.6rem; }
+    #output { font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+    .copy-bar { display: flex; align-items: center; justify-content: flex-end; margin-top: 0.8rem; gap: 0.5rem; }
+    .copy-status { font-size: 0.75rem; color: var(--green); opacity: 0; transition: opacity 0.3s; }
+    .copy-status.show { opacity: 1; }
+    .copy-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: Arial, sans-serif; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .copy-btn:hover { border-color: var(--red); color: var(--red); }
+    .auto-copy-hint { font-size: 0.7rem; color: #555; text-align: center; margin-top: 0.45rem; letter-spacing: 0.3px; }
+    .saved-badge { font-size: 0.7rem; color: var(--green); margin-left: 0.5rem; opacity: 0; transition: opacity 0.4s; }
+    .saved-badge.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">HUFF'S FU MACHINE</div>
+  <div class="subtitle">200 FU Texts With A Button Push!</div>
+  <div class="field">
+    <label for="yourName">Your Name <span class="saved-badge" id="savedBadge">✓ Saved</span></label>
+    <input type="text" id="yourName" placeholder="Sales rep name" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="leadName">Lead's Name</label>
+    <input type="text" id="leadName" placeholder="Lead name" autocomplete="off" />
+  </div>
+  <button class="btn" id="generateBtn">Generate FU Text</button>
+  <div class="auto-copy-hint">⚡ Text is copied to your clipboard automatically on generate</div>
+  <div class="output-box" id="outputBox">
+    <div class="output-label">Generated Message</div>
+    <div id="output"></div>
+    <div class="copy-bar">
+      <span class="copy-status" id="copyStatus">Copied!</span>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
