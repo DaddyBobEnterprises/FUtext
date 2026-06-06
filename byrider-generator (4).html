@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huff's FU Machine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #d62b2b; --red-dark: #a81f1f; --bg: #0f0f0f;
+      --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e;
+      --text: #f0f0f0; --muted: #888; --green: #2ecc71;
+    }
+    body {
+      font-family: Impact, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center; padding: 2rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(80,80,80,0.15), 4px 8px 24px rgba(60,60,60,0.18);
+    }
+    .logo {
+      font-family: Impact, Arial, sans-serif; font-size: 2.6rem;
+      letter-spacing: 3px; color: var(--red); margin-bottom: 0.15rem;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 3px 4px 8px rgba(0,0,0,0.7);
+    }
+    .subtitle { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 1.6rem; }
+    .fields-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    .fields-row .field { flex: 1; margin-bottom: 0; }
+    .field { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.4rem; }
+    input[type="text"] {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem; color: var(--text);
+      font-family: Arial, sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: var(--red); }
+    input[type="text"]::placeholder { color: #444; }
+    .radio-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .radio-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 1rem; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .radio-row:hover { border-color: var(--red); }
+    .radio-row input[type="radio"] { accent-color: var(--red); width: 16px; height: 16px; cursor: pointer; }
+    .radio-row span { font-family: Arial, sans-serif; font-size: 0.95rem; color: var(--text); cursor: pointer; }
+    .radio-row.selected { border-color: var(--red); }
+    .btn {
+      width: 100%; margin-top: 0.4rem; padding: 0.65rem;
+      background: #a81f1f; color: #fff;
+      font-family: Impact, Arial, sans-serif; font-size: 1.55rem;
+      font-weight: 400; border: 2px solid #000; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 2px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.55), 0 1px 4px rgba(100,100,100,0.25);
+    }
+    .btn:hover { background: #8a1818; }
+    .btn:active { transform: scale(0.98); }
+    .output-box { margin-top: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.2rem 1rem; display: none; }
+    .output-box.visible { display: block; }
+    .output-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.6rem; }
+    #output { font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+    .copy-bar { display: flex; align-items: center; justify-content: flex-end; margin-top: 0.8rem; gap: 0.5rem; }
+    .copy-status { font-size: 0.75rem; color: var(--green); opacity: 0; transition: opacity 0.3s; }
+    .copy-status.show { opacity: 1; }
+    .copy-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: Arial, sans-serif; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .copy-btn:hover { border-color: var(--red); color: var(--red); }
+    .btn-new {
+      width: 100%; margin-top: 0.6rem; padding: 0.65rem;
+      background: #a81f1f; color: #fff;
+      font-family: Impact, Arial, sans-serif; font-size: 1.55rem;
+      font-weight: 400; border: 2px solid #000; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 2px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.55), 0 1px 4px rgba(100,100,100,0.25);
+    }
+    .btn-new:hover { background: #8a1818; }
+    .btn-new:active { transform: scale(0.98); }
+    .auto-copy-hint { font-size: 0.7rem; color: #555; text-align: center; margin-top: 0.45rem; letter-spacing: 0.3px; }
+    .saved-badge { font-size: 0.7rem; color: var(--green); margin-left: 0.5rem; opacity: 0; transition: opacity 0.4s; }
+    .saved-badge.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">HUFF'S FU MACHINE</div>
+  <div class="subtitle">200 FU Texts With A Button Push!</div>
+
+  <div class="fields-row">
+    <div class="field">
+      <label for="yourName">Your Name <span class="saved-badge" id="savedBadge">✓ Saved</span></label>
+      <input type="text" id="yourName" placeholder="Sales rep name" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="leadName">Lead's Name</label>
+      <input type="text" id="leadName" placeholder="Lead name" autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label>When Can They Come In?</label>
+    <div class="radio-group">
+      <label class="radio-row selected" id="rowToday">
+        <input type="radio" name="dayChoice" value="today" checked /> <span>Today</span>
+      </label>
+      <label class="radio-row" id="rowTomorrow">
+        <input type="radio" name="dayChoice" value="tomorrow" /> <span>Tomorrow</span>
+      </label>
+    </div>
+  </div>
+
+  <button class="btn" id="generateBtn">Generate FU Text</button>
+  <button class="btn-new" id="newLeadBtn">New Lead Text</button>
+  <div class="auto-copy-hint">⚡ Text is copied to your clipboard automatically on generate</div>
+
+  <div class="output-box" id="outputBox">
+    <div class="output-label">Generated Message</div>
+    <div id="output"></div>
+    <div class="copy-bar">
+      <span class="copy-status" id="copyStatus">Copied!</span>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var APP = {
+    salespersonName: "",
+    intros: [
+      function(lead, rep) { return "Hey " + lead + ", " + rep + " at Byrider here."; },
+      function(lead, rep) { return lead + ", " + rep + " reaching out from Byrider."; },
+      function(lead) { return lead + ", just touching base."; },
+      function(lead) { return lead + ", I was looking at your information."; }
+    ],
+    contexts: [
+      "We specialize in helping customers regardless of credit situation with down payments as low as $500.",
+      "Your application has already been received and reviewed and I'm sure we could help you get into a new car.",
+      "I think we have several vehicles that could fit what you're looking for and all of our vehicles have our 2 year 24,000 mile warranty.",
+      "We currently have several vehicles available that may be a good fit and I think you'd really like them.",
+      "The next step is simply finding a time that works for you to come in and look at some options in person.",
+      "My goal is to make this car buying process as simple and stress-free as possible by doing everything I can to get you approved.",
+      "Based on what I see, I think we may be able to help you get into a new car with a 2 year 24,000 mile warranty."
+    ],
+    newLeadContexts: [
+      "I was reviewing the application you submitted, and I wanted to personally reach out because it looks like we may have some options available for you.",
+      "Thank you for taking the time to submit an application with us. The next step is simply connecting and seeing what options might fit your situation best.",
+      "I see that you applied for our in-house financing program, and that's exactly what we specialize in helping customers with every day.",
+      "I have your application and a lot of people are surprised to learn they qualify for more than they expected once we sit down and review everything together.",
+      "The application is looking great and now it's just a matter of finding the vehicle that works best for you and your needs."
+    ],
+    expands: {
+      today: [
+        "Are you normally more of a morning or afternoon person?",
+        "What time could you make it in today to get you into a new vehicle?",
+        "Could you stop by after work today to finish everything?",
+        "What time can you make it in today to wrap everything up?",
+        "When would you like to come take a look at some vehicles today and drive away in one?"
+      ],
+      tomorrow: [
+        "Would tomorrow morning or afternoon work better for you to come in?",
+        "What time could you make it in tomorrow to get you into a new vehicle?",
+        "Could you stop by tomorrow after work to finish everything?",
+        "What time can you make it in tomorrow to wrap everything up?",
+        "When would you like to come take a look at some vehicles tomorrow and drive away in one?"
+      ]
+    }
+  };
+
+  function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function getDay() {
+    var selected = document.querySelector('input[name="dayChoice"]:checked');
+    return selected ? selected.value : "today";
+  }
+
+  function loadSalesperson() {
+    var saved = localStorage.getItem("salespersonName");
+    if (!saved) return;
+    APP.salespersonName = saved;
+    document.getElementById("yourName").value = saved;
+  }
+
+  function saveSalesperson() {
+    var name = document.getElementById("yourName").value.trim();
+    APP.salespersonName = name;
+    localStorage.setItem("salespersonName", name);
+    var badge = document.getElementById("savedBadge");
+    badge.classList.add("show");
+    setTimeout(function() { badge.classList.remove("show"); }, 1500);
+  }
+
+  function showCopied() {
+    var status = document.getElementById("copyStatus");
+    status.classList.add("show");
+    setTimeout(function() { status.classList.remove("show"); }, 1800);
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed"; ta.style.top = "0"; ta.style.left = "0"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand("copy"); showCopied(); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(function() { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  }
+
+  function generateText() {
+    saveSalesperson();
+    var leadName = document.getElementById("leadName").value.trim();
+    if (!leadName) { alert("Please enter a lead name."); return; }
+    var day     = getDay();
+    var intro   = randomFrom(APP.intros)(leadName, APP.salespersonName);
+    var context = randomFrom(APP.contexts);
+    var expand  = randomFrom(APP.expands[day]);
+    var message = intro + " " + context + " " + expand;
+    document.getElementById("output").textContent = message;
+    document.getElementById("outputBox").classList.add("visible");
+    copyText(message);
+  }
+
+  document.querySelectorAll('input[name="dayChoice"]').forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      document.querySelectorAll(".radio-row").forEach(function(row) { row.classList.remove("selected"); });
+      this.closest(".radio-row").classList.add("selected");
+    });
+  });
+
+  function generateNewLeadText() {
+    saveSalesperson();
+    var leadName = document.getElementById("leadName").value.trim();
+    if (!leadName) { alert("Please enter a lead name."); return; }
+    var day     = getDay();
+    var intro   = randomFrom(APP.intros)(leadName, APP.salespersonName);
+    var context = randomFrom(APP.newLeadContexts);
+    var expand  = randomFrom(APP.expands[day]);
+    var message = intro + " " + context + " " + expand;
+    document.getElementById("output").textContent = message;
+    document.getElementById("outputBox").classList.add("visible");
+    copyText(message);
+  }
+
+  document.getElementById("generateBtn").addEventListener("click", generateText);
+  document.getElementById("newLeadBtn").addEventListener("click", generateNewLeadText);
+  document.getElementById("copyBtn").addEventListener("click", function() {
+    copyText(document.getElementById("output").textContent);
+  });
+
+  loadSalesperson();
+</script>
+
+</body>
+</html>
